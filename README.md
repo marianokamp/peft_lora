@@ -1,2 +1,2 @@
 # peft_lora
-Repo accompanying PEFT/LoRA article.
+Repo accompanying the PEFT/LoRA articles.

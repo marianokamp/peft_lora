@@ -1,0 +1,28 @@
+# For Jupyterlab. src/requirements.txt for the training job.
+# conda env create -f src/environment.yml
+# conda env update -f src/environment.yml --prune
+
+name: peft_lora 
+
+channels:
+  - defaults
+
+dependencies:
+  - python=3.10
+  - pip
+  - altair
+  - jupyterlab
+  - jupyter
+  - ipywidgets
+  - ipython
+  - ipdb
+
+  - pip:
+    - sagemaker 
+    - sagemaker-inference
+    - torch
+    - transformers
+    - datasets
+    - accelerate
+    - peft
+    - evaluate 

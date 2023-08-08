@@ -1,0 +1,17 @@
+torch
+
+transformers 
+accelerate==0.21
+bitsandbytes==0.41
+datasets
+evaluate
+peft==0.4
+
+pynvml # To measure GPU memory
+
+sagemaker # for get_execution_role in util
+sagemaker-inference # serializer and deserializer
+
+tensorboardX
+
+toml
