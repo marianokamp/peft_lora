@@ -167,7 +167,6 @@ def display_tuning_jobs(tuning_jobs):
                 job_metrics=[
                     "sst2_valid_acc",
                     "train_loss",
-                    "valid_loss",
                     "learnable_parameters",
                     "learning_rate",
                     "gpu_memory",
