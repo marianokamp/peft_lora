@@ -96,7 +96,7 @@ def capture_results(title, template_estimator, source_tuner=None, job_name=None)
     )
     train_speed_median = full_df[full_df.label == "train_samples_sec"]["value"].median()
     gpu_memory_max = full_df[full_df.label == "gpu_memory"]["value"].max()
-    gpu_memory_median = full_df[full_df.label == "gpu_memory"]["value"].median()
+    # gpu_memory_median = full_df[full_df.label == "gpu_memory"]["value"].median()
 
     objective_metric_mean = trials_df.iloc[:, -1].mean()
     objective_metric_std = trials_df.iloc[:, -1].std()
@@ -114,7 +114,7 @@ def capture_results(title, template_estimator, source_tuner=None, job_name=None)
             "parameters_relative": [parameters_relative],
             "train_speed_median": [train_speed_median],
             "gpu_memory_max": [gpu_memory_max],
-            "gpu_memory_median": [gpu_memory_median],
+            # "gpu_memory_median": [gpu_memory_median],
         }
     )
 
