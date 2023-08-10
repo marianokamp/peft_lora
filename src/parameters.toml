@@ -23,6 +23,7 @@ n-valid-samples      = 0
 n-warmup-steps       = 0 # 50
 warmup-ratio         = 0.06
 seed                 = 0 # 0 - no seed 
+use-bf16             = 1
 
 # Task specific 
 sst2-epochs          = 10
@@ -38,7 +39,6 @@ cola-lora-dropout    = 0.05
 cola-batch-size      = 224
 cola-learning-rate   = 8.5e-4
 cola-weight-decay    = 0.01
-use-bf16             = 1
 
 [tuner_parameters]
 base_tuning_job_name = "lora-base"
