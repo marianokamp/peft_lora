@@ -30,7 +30,7 @@ sst2-epochs          = 10
 sst2-lora-config     = "all"
 sst2-lora-dropout    = 0.05
 sst2-batch-size      = 480 
-sst2-learning-rate   = 1e-4
+sst2-learning-rate   = 4e-4
 sst2-weight-decay    = 0.01
 
 cola-epochs          = 10
