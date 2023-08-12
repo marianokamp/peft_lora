@@ -21,6 +21,7 @@ import toml
 import pandas as pd
 import boto3
 import altair as alt
+from IPython.display import display
 
 from transformers import AutoModelForSequenceClassification
 from sagemaker.tuner import HyperparameterTuner, IntegerParameter
@@ -129,7 +130,11 @@ def graph_results():
         .mark_bar(color="orange")
         .encode(
             x=alt.X("title:N", sort=None),
-            y=alt.Y("objective_metric_mean:Q", scale=alt.Scale(zero=False)),
+            y=alt.Y(
+                "objective_metric_mean:Q",
+                stack=None,
+                scale=alt.Scale(zero=False, padding=50),
+            ),
         )
     )
     parameters = (
