@@ -78,13 +78,15 @@ def _generate_adaptable_modules(model, lora_config, default_r):
         # ... check if we have a matching regex for the name of the current
         # module, then extract r and yield.
         for regex in lora_config.split("|"):
-            r = re.match(".*\((\d+)\)", regex)
+            r = re.match(".*\\((\\d+)\\)", regex)
             r = int(r.group(1)) if r else default_r
 
             # Remove r config from config expression
-            regex = re.sub("\(\d+\)", "", regex)
+            regex = re.sub("\\(\\d+\\)", "", regex)
+            print("name", name, "regex", regex)
 
             if re.match(f".*{regex}", name):
+                print("matched")
                 yield module, name, r
                 break
 
@@ -198,7 +200,7 @@ def validate_checksums(model, checksums):
             errors.append(f"Name: {name} Checksum: {checksums[name]}, p: {cs}")
 
     if errors:
-        print(f"Checksum errors ({len(errors)})\n", "\n".join(errors))
+        logger.error(f"Checksum errors ({len(errors)})\n", "\n".join(errors))
     assert not errors, "Checksums do not match."
 
     logger.info(
@@ -299,4 +301,7 @@ lora_configs = {
     "att_k+ff_u": "key|intermediate",
     "att_v+ff_u": "value|intermediate",
     "att_o+ff_u": "attention.output|intermediate",
+    # short vs long path to error
+    "12_top2_ff_u": "1[01].*?intermediate",
+    "12_lowest2_ff_u": "\\.[01]\\..*?intermediate",
 }
