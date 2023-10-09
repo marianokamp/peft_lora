@@ -124,7 +124,7 @@ class MultiTaskPipeline:
         return sorted(results, key=lambda _: _["id"])
 
     def _change_adapter(self, new_task):
-        started = time.time()
+        started_ns = time.time_ns()
         assert (
             new_task
         ), "Changing adapters makes only sense when specifying a new task."
@@ -151,7 +151,8 @@ class MultiTaskPipeline:
         self.current_task = new_task
         self.model.eval()
 
-        logger.info(f"Changing adapter to {new_task} took {time.time()-started:5.4f}s.")
+        duration_ms = (time.time_ns() - started_ns) / 1e6
+        logger.info(f"Changing adapter to {new_task} took {duration_ms} ms.")
         return
 
     def _predict(self, inputs):
