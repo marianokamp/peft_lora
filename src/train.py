@@ -64,7 +64,7 @@ def schedule_gpu_memory_logging():
     def log_loop():
         while True:
             log_gpu_usage()
-            time.sleep(60)
+            time.sleep(30)
 
     t = Thread(target=log_loop, daemon=True)
     t.start()
@@ -177,7 +177,7 @@ def compute_metrics(task, eval_pred):
         f"{task}_f1": f1,
         f"{task}_matthews_correlation": matthews_correlation,
     }
-    log_gpu_usage()
+    log_gpu_usage(args.empty_cuda_cache)
 
     return metrics
 
@@ -306,6 +306,7 @@ def fit_task(task, args, tokenizer, collator):
         # save_steps=1,
         logging_steps=logging_steps,
         metric_for_best_model=f"eval_{task}_accuracy",
+        gradient_checkpointing=args.use_gradient_checkpointing,
         gradient_accumulation_steps=args.n_gradient_accumulation_steps,
         logging_strategy="steps",
         evaluation_strategy="epoch",
@@ -387,8 +388,10 @@ def parse_args():
     parser.add_argument("--scale-input", type=int, default=1)
     parser.add_argument("--n-warmup-steps", type=int, default=0)
     parser.add_argument("--warmup-ratio", type=float, default=0.0)
+    parser.add_argument("--use-gradient-checkpointing", type=int, default=1, help='1 yes, 0 no') 
     parser.add_argument("--n-gradient-accumulation-steps", type=int, default=1)
     parser.add_argument("--patience", type=int, default=0)
+    parser.add_argument("--empty-cuda-cache", type=int, default=1)
     parser.add_argument("--use-mps", type=int, default=0)
     parser.add_argument("--use-bf16", type=int, default=1)
     parser.add_argument("--use-hf-logging", type=int, default=0)
