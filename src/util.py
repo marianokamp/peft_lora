@@ -141,27 +141,32 @@ def calc_combinations(hp_ranges):
 count = 0
 
 
-def log_gpu_usage():
+def log_gpu_usage(empty_cache=False):
     if not torch.cuda.is_available():
         return
+
+    if empty_cache:
+        torch.cuda.empty_cache()
 
     import pynvml
     from pynvml.smi import nvidia_smi
 
     nvidia_smi.getInstance()
+    device_count = pynvml.nvmlDeviceGetCount()
 
     global count
 
+    # print general information about the installed GPUs once
     if count == 0:
-        device_count = pynvml.nvmlDeviceGetCount()
         logger.info(f"Device count: {device_count}")
         for i in range(device_count):
             handle = pynvml.nvmlDeviceGetHandleByIndex(i)
             logger.info(f"Device: {pynvml.nvmlDeviceGetName(handle)}:")
             logger.info(pynvml.nvmlDeviceGetMemoryInfo(handle))
+
     count += 1
 
-    device_count = pynvml.nvmlDeviceGetCount()
+    # print GPU usage on every call
     for i in range(device_count):
         handle = pynvml.nvmlDeviceGetHandleByIndex(i)
         info = pynvml.nvmlDeviceGetMemoryInfo(handle)
