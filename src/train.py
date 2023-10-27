@@ -289,7 +289,7 @@ def fit_task(task, args, tokenizer, collator):
     )
     logging_steps = len(tokenized_train) // args.batch_size // 8
     logger.info(
-        f"Training with lr: {args.learning_rate}, batch-size: {args.batch_size}, log steps: {logging_steps}."
+        f"Training with lr: {args.learning_rate}, batch-size: {args.batch_size}, wd: {args.weight_decay}, log steps: {logging_steps}."
     )
     training_args = TrainingArguments(
         output_dir=args.model_dir if args.model_dir else "out",
@@ -300,6 +300,7 @@ def fit_task(task, args, tokenizer, collator):
         weight_decay=args.weight_decay,
         push_to_hub=False,
         load_best_model_at_end=args.patience,
+        fp16=args.use_fp16 and torch.cuda.is_available(),
         bf16=args.use_bf16 and torch.cuda.is_available(),
         warmup_steps=args.n_warmup_steps,
         warmup_ratio=args.warmup_ratio,
@@ -394,6 +395,7 @@ def parse_args():
     parser.add_argument("--empty-cuda-cache", type=int, default=1)
     parser.add_argument("--use-mps", type=int, default=0)
     parser.add_argument("--use-bf16", type=int, default=1)
+    parser.add_argument("--use-fp16", type=int, default=1)
     parser.add_argument("--use-hf-logging", type=int, default=0)
     parser.add_argument(
         "--use-hf-lora",
