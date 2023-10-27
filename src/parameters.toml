@@ -39,6 +39,7 @@ cola-lora-dropout    = 0.05
 cola-batch-size      = 224
 cola-learning-rate   = 8.5e-4
 cola-weight-decay    = 0.01
+use-gradient-checkpointing = 0
 
 [tuner_parameters]
 base_tuning_job_name = "lora-base"
