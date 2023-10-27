@@ -83,10 +83,8 @@ def _generate_adaptable_modules(model, lora_config, default_r):
 
             # Remove r config from config expression
             regex = re.sub("\\(\\d+\\)", "", regex)
-            print("name", name, "regex", regex)
 
             if re.match(f".*{regex}", name):
-                print("matched")
                 yield module, name, r
                 break
 
