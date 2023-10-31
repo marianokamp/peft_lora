@@ -113,11 +113,13 @@ def load_and_prepare_data(
     return tokenized_train, tokenized_valid
 
 
-def load_model_and_tokenizer_and_collator(model_ckp, model_dir=None):
+def load_model_and_tokenizer_and_collator(model_ckp, clf_dropout=0.0, model_dir=None):
     args = [model_dir if model_dir and (model_dir / "model").exists() else model_ckp]
 
     model = execute_with_retry(
-        lambda: AutoModelForSequenceClassification.from_pretrained(*args, num_labels=2)
+        lambda: AutoModelForSequenceClassification.from_pretrained(
+            *args, num_labels=2, classifier_dropout=clf_dropout
+        )
     )
     tokenizer = execute_with_retry(lambda: AutoTokenizer.from_pretrained(model_ckp))
     collator = DataCollatorWithPadding(tokenizer=tokenizer)
@@ -225,7 +227,9 @@ def pre_fit_task(args):
         # logger = logging.get_logger("transformers")
 
     logger.info("Loading model and tokenizer.")
-    model, tokenizer, collator = load_model_and_tokenizer_and_collator(args.model_ckp)
+    model, tokenizer, collator = load_model_and_tokenizer_and_collator(
+        args.model_ckp, args.clf_dropout
+    )
 
     logger.info(f"Pre-trained model:\n{model}")
 
@@ -262,7 +266,7 @@ def fit_task(task, args, tokenizer, collator):
     # Specifically instead now instantiating one with
     # the specific number of labels for our task
     model, _, _ = load_model_and_tokenizer_and_collator(
-        args.model_ckp, model_dir=Path(args.model_dir) / "model"
+        args.model_ckp, args.clf_dropout, Path(args.model_dir) / "model"
     )  # contains the pre-trained model
     model.train()
     logger.info("Pre-trained model loaded.")
@@ -381,6 +385,7 @@ def parse_args():
 
     parser.add_argument("--model-dir", type=str, default=os.environ.get("SM_MODEL_DIR"))
     parser.add_argument("--model-ckp", type=str, default="roberta-base")
+    parser.add_argument("--clf-dropout", type=float, default=0.0)
 
     parser.add_argument("--seed", type=int, default=None)
 
@@ -389,13 +394,15 @@ def parse_args():
     parser.add_argument("--scale-input", type=int, default=1)
     parser.add_argument("--n-warmup-steps", type=int, default=0)
     parser.add_argument("--warmup-ratio", type=float, default=0.0)
-    parser.add_argument("--use-gradient-checkpointing", type=int, default=1, help='1 yes, 0 no') 
+    parser.add_argument(
+        "--use-gradient-checkpointing", type=int, default=1, help="1 yes, 0 no"
+    )
     parser.add_argument("--n-gradient-accumulation-steps", type=int, default=1)
     parser.add_argument("--patience", type=int, default=0)
     parser.add_argument("--empty-cuda-cache", type=int, default=1)
     parser.add_argument("--use-mps", type=int, default=0)
-    parser.add_argument("--use-bf16", type=int, default=1)
-    parser.add_argument("--use-fp16", type=int, default=1)
+    parser.add_argument("--use-bf16", type=int, default=0)
+    parser.add_argument("--use-fp16", type=int, default=0)
     parser.add_argument("--use-hf-logging", type=int, default=0)
     parser.add_argument(
         "--use-hf-lora",

@@ -16,6 +16,7 @@ max_wait             = 68640
 tasks                = "sst2"
 
 model-ckp            = "roberta-base"
+clf-dropout          = 0.0
 patience             = 1 
 
 n-train-samples      = 0 # 0 - no sampling, full dataset
