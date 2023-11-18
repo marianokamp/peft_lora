@@ -164,8 +164,10 @@ def display_tuning_jobs(tuning_jobs):
         tuning_jobs = [tuning_jobs]
 
     for tj in tuning_jobs:
-        display(tj.describe()["HyperParameterTuningJobName"])
-        tj.wait()
+        if not isinstance(tj, str):
+            tj.wait()
+            tj = tj.describe()["HyperParameterTuningJobName"]
+        display(tj)
         display(
             visualize_tuning_job(
                 tj,
