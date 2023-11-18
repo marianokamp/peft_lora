@@ -285,6 +285,8 @@ lora_configs = {
     "ff_u": "intermediate",
     "ff_d": "layer.\\d+.output",
     # Horizontal/By-Layer
+    "12_top1": "layer.11.",
+    "12_bot1": "layer.0.",
     "12_upper": _enumerate(6, 11, 4),
     "12_lower": _enumerate(0, 6, 4),
     "12_even": _enumerate(0, 11, 4),
@@ -296,7 +298,9 @@ lora_configs = {
     "att_qk+ff_u": "query|key|intermediate",
     "att_qv+ff_u": "query|value|intermediate",
     "att_q+ff_u": "query|intermediate",
+    "att_q+ff_d": "query|layer.\\d+.output",
     "att_k+ff_u": "key|intermediate",
+    "att_v+ff_d": "value|layer.\\d+.output",
     "att_v+ff_u": "value|intermediate",
     "att_o+ff_u": "attention.output|intermediate",
     # short vs long path to error
