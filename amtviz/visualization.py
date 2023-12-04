@@ -232,6 +232,11 @@ def create_charts(
                 ),
             )
 
+            discrete = (
+                parameter_type in ["O", "N"]
+                and len(trials_df[tuning_parameter].unique()) < 8
+            )
+
             ### Detail Chart
             charts.append(
                 alt.Chart(trials_df, title=tuning_parameter)
@@ -251,10 +256,12 @@ def create_charts(
                 )
             )
 
-            if (
-                parameter_type in ["O", "N"]
-                and len(trials_df[tuning_parameter].unique()) < 8
-            ):
+            if discrete:
+                # Individually coloring the values only if we don't already
+                # use the colors to show the different tuning jobs
+                print(parameter_type, tuning_parameter)
+                if not multiple_tuning_jobs:
+                    charts[-1] = charts[-1].encode(color=f"{tuning_parameter}:N")
                 charts[-1] = (
                     (
                         charts[-1]
@@ -266,15 +273,18 @@ def create_charts(
                         .mark_area(opacity=0.5)
                         .encode(
                             x=alt.X(
-                                f"value:Q", title=objective_name, scale=objective_scale
+                                "value:Q", title=objective_name, scale=objective_scale
                             ),
                             y="density:Q",
-                            color=alt.Color(tuning_parameter + ":N"),
+                            # color=alt.Color(tuning_parameter + ":N"),
+                            color=alt.Color(
+                                f"{tuning_parameter}:N",
+                            ),
                             tooltip=tuning_parameter,
                         )
-                    )
-                    .properties(title=tuning_parameter)
-                    .resolve_scale("independent")
+                    ).properties(title=tuning_parameter)
+                    # .resolve_scale("independent")
+                    # .resolve_legend(color="independent")
                 )
 
             if advanced and parameter_type == "Q":
