@@ -53,7 +53,7 @@ def p(key=None):
 
 # Lets' keep track of the baselines and the major experiment outcomes
 def capture_results(title, template_estimator, source_tuner=None, job_name=None):
-    n_trials = 3
+    n_trials = 5
     hpt_ranges = {"dummy": IntegerParameter(0, n_trials)}
 
     # We take the source tuner as a template
@@ -152,7 +152,7 @@ def graph_results():
     gpu_mem = performance.properties(title="GPU Memory").encode(
         y=alt.Y("gpu_memory_max:Q", scale=alt.Scale(zero=False))
     )
-    train_speed = performance.properties(title="Train Velocity").encode(
+    train_speed = performance.properties(title="Train Speed").encode(
         y=alt.Y("train_speed_median:Q", scale=alt.Scale(zero=False))
     )
     display(df)
