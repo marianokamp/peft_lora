@@ -137,6 +137,18 @@ def graph_results():
             ),
         )
     )
+
+    performance_std = (
+        performance.transform_calculate(
+            om_low="datum.objective_metric_mean-datum.objective_metric_std",
+            om_high="datum.objective_metric_mean+datum.objective_metric_std",
+        )
+        .mark_bar(color="black", width=2)
+        .encode(
+            y=alt.Y("om_low:Q", title="objective_metric_mean"), y2=alt.Y2("om_high:Q")
+        )
+    )
+
     parameters = (
         alt.Chart(
             df[df.title != "Full Finetuning"],
@@ -156,7 +168,7 @@ def graph_results():
         y=alt.Y("train_speed_median:Q", scale=alt.Scale(zero=False))
     )
     display(df)
-    return performance | parameters | gpu_mem | train_speed
+    return performance + performance_std | parameters | gpu_mem | train_speed
 
 
 def display_tuning_jobs(tuning_jobs):
