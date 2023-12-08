@@ -3,7 +3,7 @@ entry_point          = 'train.py'
 source_dir           = 'src'
 instance_type        = 'ml.g5.xlarge'
 instance_count       = 1 
-framework_version    = '2.0'
+framework_version    = '2.1'
 py_version           = "py310"
 base_job_name        = "lora"
 
@@ -16,30 +16,35 @@ max_wait             = 68640
 tasks                = "sst2"
 
 model-ckp            = "roberta-base"
-clf-dropout          = 0.0
-patience             = 1 
+patience             = 0 
 
 n-train-samples      = 0 # 0 - no sampling, full dataset
 n-valid-samples      = 0
 n-warmup-steps       = 0 # 50
-warmup-ratio         = 0.06
+warmup-ratio         = 0.1
 seed                 = 0 # 0 - no seed 
 use-bf16             = 1
 
+clf-dropout          = 0.05
+hidden-dropout       = 0.20
+attention-dropout    = 0.20
+adam_beta1           = 0.9
+adam_beta2           = 0.98
+
 # Task specific 
-sst2-epochs          = 10
+sst2-epochs          = 10 
 sst2-lora-config     = "all"
-sst2-lora-dropout    = 0.05
+sst2-lora-dropout    = 0.10
 sst2-batch-size      = 480 
-sst2-learning-rate   = 4e-4
-sst2-weight-decay    = 0.01
+sst2-learning-rate   = 1e-4
+sst2-weight-decay    = 0.01 
 
 cola-epochs          = 10
 cola-lora-config     = "all"
 cola-lora-dropout    = 0.05
 cola-batch-size      = 224
 cola-learning-rate   = 8.5e-4
-cola-weight-decay    = 0.01
+cola-weight-decay    = 1e-9
 use-gradient-checkpointing = 0
 
 [tuner_parameters]

@@ -113,12 +113,22 @@ def load_and_prepare_data(
     return tokenized_train, tokenized_valid
 
 
-def load_model_and_tokenizer_and_collator(model_ckp, clf_dropout=0.0, model_dir=None):
+def load_model_and_tokenizer_and_collator(
+    model_ckp,
+    clf_dropout=0.0,
+    hidden_dropout=0.1,
+    attention_dropout=0.1,
+    model_dir=None,
+):
     args = [model_dir if model_dir and (model_dir / "model").exists() else model_ckp]
 
     model = execute_with_retry(
         lambda: AutoModelForSequenceClassification.from_pretrained(
-            *args, num_labels=2, classifier_dropout=clf_dropout
+            *args,
+            num_labels=2,
+            classifier_dropout=clf_dropout,
+            hidden_dropout_prob=hidden_dropout,
+            attention_probs_dropout_prob=attention_dropout,
         )
     )
     tokenizer = execute_with_retry(lambda: AutoTokenizer.from_pretrained(model_ckp))
@@ -228,7 +238,7 @@ def pre_fit_task(args):
 
     logger.info("Loading model and tokenizer.")
     model, tokenizer, collator = load_model_and_tokenizer_and_collator(
-        args.model_ckp, args.clf_dropout
+        args.model_ckp, args.clf_dropout, args.hidden_dropout, args.attention_dropout
     )
 
     logger.info(f"Pre-trained model:\n{model}")
@@ -266,7 +276,11 @@ def fit_task(task, args, tokenizer, collator):
     # Specifically instead now instantiating one with
     # the specific number of labels for our task
     model, _, _ = load_model_and_tokenizer_and_collator(
-        args.model_ckp, args.clf_dropout, Path(args.model_dir) / "model"
+        args.model_ckp,
+        args.clf_dropout,
+        args.hidden_dropout,
+        args.attention_dropout,
+        Path(args.model_dir) / "model",
     )  # contains the pre-trained model
     model.train()
     logger.info("Pre-trained model loaded.")
@@ -308,9 +322,12 @@ def fit_task(task, args, tokenizer, collator):
         bf16=args.use_bf16 and torch.cuda.is_available(),
         warmup_steps=args.n_warmup_steps,
         warmup_ratio=args.warmup_ratio,
+        adam_epsilon=1e-6,
+        adam_beta1=args.adam_beta1,
+        adam_beta2=args.adam_beta2,
         # save_steps=1,
         logging_steps=logging_steps,
-        metric_for_best_model=f"eval_{task}_accuracy",
+        # metric_for_best_model=f"eval_{task}_accuracy",
         gradient_checkpointing=args.use_gradient_checkpointing,
         gradient_accumulation_steps=args.n_gradient_accumulation_steps,
         logging_strategy="steps",
@@ -319,9 +336,9 @@ def fit_task(task, args, tokenizer, collator):
         save_total_limit=1,
         seed=args.seed,
         disable_tqdm=True,
-        logging_dir="/opt/ml/output/tensorboard",
-        report_to=["tensorboard"],
-        lr_scheduler_type="linear",  # cosine
+        # logging_dir="/opt/ml/output/tensorboard",
+        # report_to=["tensorboard"],
+        lr_scheduler_type="cosine",  # cosine, linear
     )
 
     callbacks = []
@@ -385,9 +402,14 @@ def parse_args():
 
     parser.add_argument("--model-dir", type=str, default=os.environ.get("SM_MODEL_DIR"))
     parser.add_argument("--model-ckp", type=str, default="roberta-base")
-    parser.add_argument("--clf-dropout", type=float, default=0.0)
 
     parser.add_argument("--seed", type=int, default=None)
+
+    parser.add_argument("--adam-beta1", type=float, default=0.9)
+    parser.add_argument("--adam-beta2", type=float, default=0.999)
+    parser.add_argument("--clf-dropout", type=float, default=0.0)
+    parser.add_argument("--hidden-dropout", type=float, default=0.1)
+    parser.add_argument("--attention-dropout", type=float, default=0.1)
 
     parser.add_argument("--n-train-samples", type=int, default=0)
     parser.add_argument("--n-valid-samples", type=int, default=0)
@@ -419,7 +441,7 @@ def parse_args():
         parser.add_argument(f"--{task}-learning-rate", type=float, default=2e-5)
         parser.add_argument(f"--{task}-weight-decay", type=float, default=1e-2)
         parser.add_argument(f"--{task}-batch-size", type=int, default=16)
-        parser.add_argument(f"--{task}-epochs", type=int, default=10)
+        parser.add_argument(f"--{task}-epochs", type=float, default=10.0)
         parser.add_argument(f"--{task}-lora-dropout", type=float, default=0.1)
         parser.add_argument(
             f"--{task}-lora-config",
