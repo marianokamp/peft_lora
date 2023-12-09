@@ -305,7 +305,7 @@ def fit_task(task, args, tokenizer, collator):
     tokenized_train, tokenized_valid = load_and_prepare_data(
         task, tokenizer, args.n_train_samples, args.n_valid_samples, args.scale_input
     )
-    logging_steps = len(tokenized_train) // args.batch_size // 8
+    logging_steps = len(tokenized_train) // args.batch_size // 4 
     logger.info(
         f"Training with lr: {args.learning_rate}, batch-size: {args.batch_size}, wd: {args.weight_decay}, log steps: {logging_steps}."
     )
