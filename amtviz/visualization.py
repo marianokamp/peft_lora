@@ -199,7 +199,6 @@ def create_charts(
 
             # print('tuning parameter', tuning_parameter, dtype)
             if "float" in dtype:
-                # print('yes')
                 parameter_type = "Q"  # Quantitative
                 ratio = (trials_df[tuning_parameter].max() + 1e-10) / (
                     trials_df[tuning_parameter].min() + 1e-10
@@ -259,7 +258,6 @@ def create_charts(
             if discrete:
                 # Individually coloring the values only if we don't already
                 # use the colors to show the different tuning jobs
-                print(parameter_type, tuning_parameter)
                 if not multiple_tuning_jobs:
                     charts[-1] = charts[-1].encode(color=f"{tuning_parameter}:N")
                 charts[-1] = (
