@@ -2,10 +2,8 @@ torch~=2.1
 
 transformers~=4.36 
 accelerate~=0.21
-bitsandbyte~==0.41
 datasets~=2.15
 evaluate~=0.4.1
-peft~=0.4
 
 pynvml # To measure GPU memory
 
