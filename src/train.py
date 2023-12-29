@@ -305,7 +305,7 @@ def fit_task(task, args, tokenizer, collator):
     tokenized_train, tokenized_valid = load_and_prepare_data(
         task, tokenizer, args.n_train_samples, args.n_valid_samples, args.scale_input
     )
-    logging_steps = len(tokenized_train) // args.batch_size // 4 
+    logging_steps = len(tokenized_train) // args.batch_size // 4
     logger.info(
         f"Training with lr: {args.learning_rate}, batch-size: {args.batch_size}, wd: {args.weight_decay}, log steps: {logging_steps}."
     )
@@ -430,7 +430,7 @@ def parse_args():
         "--use-hf-lora",
         type=int,
         default=0,
-        help="1 for hfi peft. Applies to all tasks.",
+        help="1 for hf peft. Applies to all tasks.",
     )
     parser.add_argument(
         "--tasks", type=str, default="sst2", help="Comma separated list of tasks."
