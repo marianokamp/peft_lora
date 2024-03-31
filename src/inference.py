@@ -107,16 +107,23 @@ class MultiTaskPipeline:
             # optimization is desirable.
             task_input_ids = [i for i in range(len(inputs)) if tasks[i] == task]
             for i in range(0, len(task_input_ids), bs):
-                batch_task_input_ids = task_input_ids[i : i + bs]
-                inp = np.array(inputs)[[batch_task_input_ids]].tolist()
-                tokenized = self.tokenizer(
-                    inp,
-                    padding=True,
-                    truncation=True,
-                )
-                task_inputs = zip(
-                    batch_task_input_ids, tokenized.input_ids, tokenized.attention_mask
-                )
+                try:
+                    batch_task_input_ids = task_input_ids[i : i + bs]
+                    inp = np.array(inputs)
+                    inp = inp[batch_task_input_ids]
+                    inp = inp.tolist()
+                
+                    tokenized = self.tokenizer(
+                        inp,
+                        padding=True,
+                        truncation=True,
+                    )
+                    task_inputs = zip(
+                        batch_task_input_ids, tokenized.input_ids, tokenized.attention_mask
+                    )
+                except RuntimeError as err:
+                    logger.error(f'Oops: {err=}', stack_info=True)
+                    loger.info('error!')
 
                 results.extend(self._predict(task_inputs))
 
