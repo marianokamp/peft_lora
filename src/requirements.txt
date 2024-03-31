@@ -1,8 +1,8 @@
-torch~=2.1
+torch~=2.2
 
-transformers~=4.36 
-accelerate~=0.21
-datasets~=2.15
+transformers~=4.39.2 
+accelerate~=0.28 
+datasets~=2.18
 evaluate~=0.4.1
 
 pynvml # To measure GPU memory
