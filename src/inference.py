@@ -134,6 +134,7 @@ class MultiTaskPipeline:
             return
 
         # Adapter installed? Then remove it before installing a new one.
+        previous_task = self.current_task
         if self.current_task:
             logger.info(f"Removing adapter {self.current_task}.")
             remove_adapter(self.model, self.task_adapters[self.current_task])
@@ -152,8 +153,8 @@ class MultiTaskPipeline:
         self.model.eval()
 
         duration_ms = (time.time_ns() - started_ns) / 1e6
-        logger.info(f"Changing adapter to {new_task} took {duration_ms} ms.")
-        return
+        logger.info(f"Changing adapter (remove and install) from {previous_task} to {new_task} took {duration_ms:5.2f} ms.")
+        return 
 
     def _predict(self, inputs):
         sample_ids, input_ids, attention_masks = zip(*inputs)
