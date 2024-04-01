@@ -3,7 +3,7 @@ entry_point          = 'train.py'
 source_dir           = 'src'
 instance_type        = 'ml.g5.xlarge'
 instance_count       = 1 
-framework_version    = '2.2'
+framework_version    = '2.1'
 py_version           = "py310"
 base_job_name        = "lora"
 
