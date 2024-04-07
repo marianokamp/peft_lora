@@ -309,6 +309,10 @@ def fit_task(task, args, tokenizer, collator):
     logger.info(
         f"Training with lr: {args.learning_rate}, batch-size: {args.batch_size}, wd: {args.weight_decay}, log steps: {logging_steps}."
     )
+    gradient_checkpointing_kwargs = None
+    if args.use_gradient_checkpointing:
+        gradient_checkpointing_kwargs = {"use_reentrant":False}
+
     training_args = TrainingArguments(
         output_dir=args.model_dir if args.model_dir else "out",
         learning_rate=args.learning_rate,
@@ -329,6 +333,7 @@ def fit_task(task, args, tokenizer, collator):
         logging_steps=logging_steps,
         # metric_for_best_model=f"eval_{task}_accuracy",
         gradient_checkpointing=args.use_gradient_checkpointing,
+        gradient_checkpointing_kwargs=gradient_checkpointing_kwargs,
         gradient_accumulation_steps=args.n_gradient_accumulation_steps,
         logging_strategy="steps",
         evaluation_strategy="epoch",
