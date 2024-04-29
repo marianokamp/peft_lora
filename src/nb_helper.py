@@ -122,12 +122,86 @@ def capture_results(title, template_estimator, source_tuner=None, job_name=None)
     pd.concat([existing_df, new_df]).to_csv(results_p, index=False)
 
 
-def graph_results():
+def graph_results_new(with_focus=None):
+    if not with_focus: 
+        with_focus = []
+    
     df = pd.read_csv(Path("results.csv"))
 
     performance = (
         alt.Chart(df, title="Model Performance", width=200)
+        .mark_bar(color='orange')
+        .encode(
+            x=alt.X("title:N", sort=None, title='scenario'),
+            y=alt.Y(
+                "objective_metric_mean:Q",
+                stack=None,
+                scale=alt.Scale(zero=False, padding=50),
+            ),
+        )
+    )
+
+    performance_std = (
+        performance.transform_calculate(
+            om_low="datum.objective_metric_mean-datum.objective_metric_std",
+            om_high="datum.objective_metric_mean+datum.objective_metric_std",
+        )
+        .mark_bar(color="black", width=2)
+        .encode(
+            y=alt.Y("om_low:Q", title="objective_metric_mean"), y2=alt.Y2("om_high:Q")
+        )
+    )
+
+    parameters = (
+        alt.Chart(
+            df[df.title != "Full Finetuning"],
+            title="Parameters (% of Full Finetuning)",
+            width=200,
+        )
         .mark_bar(color="orange")
+        .encode(
+            x=alt.X("title:N", title='scenario', sort=None),
+            y=alt.Y("parameters_relative:Q", scale=alt.Scale(zero=False)),
+        )
+    )
+    display(df)
+    graphs=[performance + performance_std | parameters]
+    for focus_title in with_focus:
+        in_focus = alt.expr.indexof(alt.datum.title, focus_title) > -1
+        color = alt.condition(
+            in_focus,
+            alt.value('orange'), # active color
+            alt.value('lightgrey') # inactive color
+        )
+        opacity = alt.condition(
+            in_focus,
+            alt.value(1.0), # active 
+            alt.value(1.0) # inactive 
+        )
+        performance = performance.encode(color=color) 
+        performance = performance.encode(opacity=opacity) 
+        parameters = parameters.encode(color=color) 
+        parameters = parameters.encode(opacity=opacity) 
+        color['value'] = 'lightgrey' 
+        color['condition']['value'] = 'black' 
+        performance_std = performance_std.encode(color=color) 
+
+        graphs.append(performance + performance_std | parameters)
+
+
+    for graph in graphs:
+        display(graph)
+    #return alt.vconcat(*graphs)
+
+def graph_results(with_focus=None):
+    if not with_focus: 
+        with_focus = []
+    
+    df = pd.read_csv(Path("results.csv"))
+
+    performance = (
+        alt.Chart(df, title="Model Performance", width=200)
+        .mark_bar(color='orange')
         .encode(
             x=alt.X("title:N", sort=None),
             y=alt.Y(
@@ -168,7 +242,37 @@ def graph_results():
         y=alt.Y("train_speed_median:Q", scale=alt.Scale(zero=False))
     )
     display(df)
-    return performance + performance_std | parameters | gpu_mem | train_speed
+    graphs=[performance + performance_std | parameters | gpu_mem | train_speed]
+    for focus_title in with_focus:
+        in_focus = alt.expr.indexof(alt.datum.title, focus_title) > -1
+        color = alt.condition(
+            in_focus,
+            alt.value('orange'), # active color
+            alt.value('lightgrey') # inactive color
+        )
+        opacity = alt.condition(
+            in_focus,
+            alt.value(1.0), # active 
+            alt.value(1.0) # inactive 
+        )
+        performance = performance.encode(color=color) 
+        performance = performance.encode(opacity=opacity) 
+        parameters = parameters.encode(color=color) 
+        parameters = parameters.encode(opacity=opacity) 
+        gpu_mem = gpu_mem.encode(color=color) 
+        gpu_mem = gpu_mem.encode(opacity=opacity) 
+        train_speed = train_speed.encode(color=color) 
+        train_speed = train_speed.encode(opacity=opacity) 
+        color['value'] = 'lightgrey' 
+        color['condition']['value'] = 'black' 
+        performance_std = performance_std.encode(color=color) 
+
+        graphs.append(performance + performance_std | parameters | gpu_mem | train_speed)
+
+
+    for graph in graphs:
+        display(graph)
+    #return alt.vconcat(*graphs)
 
 
 def display_tuning_jobs(tuning_jobs):
@@ -186,6 +290,7 @@ def display_tuning_jobs(tuning_jobs):
                 job_metrics=[
                     "sst2_valid_acc",
                     "train_loss",
+                    "valid_loss",
                     "learnable_parameters",
                     "learning_rate",
                     "gpu_memory",

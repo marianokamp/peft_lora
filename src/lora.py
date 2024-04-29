@@ -213,7 +213,6 @@ def install_adapter(model, adapter, validate=True):
         if mod_name in adapter:
             if "lora_A" in adapter[mod_name]:
                 lora_AB = adapter[mod_name]["lora_A"] @ adapter[mod_name]["lora_B"]
-                # FIXME: Why transpose?
                 module.weight.data += lora_AB.transpose(-2, -1)
                 logger.debug(f"Installed module adapter for {mod_name}.")
 
@@ -231,12 +230,9 @@ def remove_adapter(model, adapter):
         if mod_name in adapter:
             if "lora_A" in adapter[mod_name]:
                 lora_AB = adapter[mod_name]["lora_A"] @ adapter[mod_name]["lora_B"]
-                # FIXME: Why transpose?
                 module.weight.data -= lora_AB.transpose(-2, -1)
                 logger.debug(f"Removed module adapter for {mod_name}.")
             else:
-                # model.classifier = None
-                # delattr(model, 'classifier')
                 del model.classifier
                 logger.debug(f"Removed classifier {mod_name}.")
 
